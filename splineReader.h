@@ -34,7 +34,7 @@ private:
 /*-----------------------------------------------*/
 Cvec3f* splineReader::parseSplineFile(string filename)
 {
-	/* 	PURPOSE:    	Reads file and assigns spline points to array of Cvec3's 
+	/*	PURPOSE:    	Reads file and assigns spline points to array of Cvec3's 
 		RECEIVES:	filename - string address of file to be read location 
 		RETURNS:    	Cvec3 array that holds all spline points read from file 
 		REMARKS:    	Precondition: filename must be valid
