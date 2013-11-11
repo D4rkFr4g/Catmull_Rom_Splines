@@ -34,11 +34,11 @@ private:
 /*-----------------------------------------------*/
 Cvec3f* splineReader::parseSplineFile(string filename)
 {
-	/* PURPOSE:    Reads file and assigns spline points to array of Cvec3's 
+	/* 	PURPOSE:    	Reads file and assigns spline points to array of Cvec3's 
 		RECEIVES:	filename - string address of file to be read location 
-		RETURNS:    Cvec3 array that holds all spline points read from file 
-		REMARKS:    Precondition: filename must be valid
-						Precondition: first line is number of points
+		RETURNS:    	Cvec3 array that holds all spline points read from file 
+		REMARKS:    	Precondition: filename must be valid
+				Precondition: first line is number of points
 	*/
 	Cvec3f *splineArray;
 	ifstream splineFile (filename);
@@ -71,10 +71,10 @@ Cvec3f* splineReader::parseSplineFile(string filename)
 /*-----------------------------------------------*/
 Cvec3f splineReader::parseCvec(string spline)
 {
-	/* PURPOSE:		Converts string into Cvec3 
-		RECEIVES:   spline - string that contains Cvec coordinates 
-		RETURNS:    Cvec3f that contains parsed points of the spline
-		REMARKS:    Precondition:	string format must be x1-float,z1-float
+	/* 	PURPOSE:	Converts string into Cvec3 
+		RECEIVES:   	spline - string that contains Cvec coordinates 
+		RETURNS:    	Cvec3f that contains parsed points of the spline
+		REMARKS:	Precondition:	string format must be x1-float,z1-float
 	*/
 		
 	// Split into two tokens
@@ -92,8 +92,8 @@ Cvec3f splineReader::parseCvec(string spline)
 /*-----------------------------------------------*/
 void splineReader::printCvec(Cvec3f splinePoint)
 {
-	/* PURPOSE:		Prints the Cvec3 
-		RECEIVES:   splinePoint - The Cvec3f to be printed. 
+	/* 	PURPOSE:	Prints the Cvec3 
+		RECEIVES:	splinePoint - The Cvec3f to be printed. 
 	*/
 
 	float x = splinePoint[0];
