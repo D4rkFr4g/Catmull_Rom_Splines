@@ -1,0 +1,17 @@
+After reading in your file, your program should draw a green ground covering the visible x-z, on which rests 4 high, 1 wide, 0.5 thick, black dominoes with white dots at the positions that were just read in. 
+
+
+Each domino, except the first and last, again which I leave up to you, should be oriented in the direction of the vector from the position of the domino one before to the domino one after it. 
+
+
+When the user hits the i (for interpolate) key. Your program should interpolate evenly five dominoes between each control point (you might end up drawing dominoes partially over dominoes depending on the spline.txt files) using these Catmull Rom splines. 
+
+
+The direction the interpolated dominoes are facing should be based on the first directive of the splines at that point.
+
+
+
+2 bonus points: if hitting the a key draws the interpolants, then starting with the first domino, topples the dominoes over as in a domino effect demonstration.
+
+
+*Use lookat Matrix function at the point the RigTform is converted to a Matrix.

@@ -9,7 +9,7 @@
 * Project:         CS 116A Homework #4
 * File:            hw4.cpp 
 * Purpose:         Implement a curve drawwing algorithm
-* Start date:      11/18/13 
+* Start date:      11/10/13 
 * Programmer:      Zane Melcho 
 * 
 ****************************************************** 
@@ -38,6 +38,7 @@
 #include "ppm.h"
 #include "glsupport.h"
 #include "rigtform.h"
+#include "splineReader.h"
 
 #define M_PI 3.1415926535897932384626433832795;
 enum {I_POWER, I_SLERP, I_LERP, PAUSE};
@@ -591,9 +592,6 @@ static void keyboardTimer(int value)
 
 	float msecs = 10 * 1000;
 	
-	//TODO Call Camera Animation
-	
-
 	if (!isKeyboardActive)
 		glutTimerFunc(msecs, keyboardTimer, 0);
 }
@@ -869,6 +867,8 @@ int main(int argc, char * argv[]) {
 		initGeometry();
 		initCamera();
 
+		Cvec3f* splineArray = splineReader::parseSplineFile("spline.txt");
+
 /*		
 		//Debug stuff
 		cout << "\n";
@@ -886,3 +886,15 @@ int main(int argc, char * argv[]) {
     return -1;
   }
 }
+
+// TODO Remove at end
+/*-----------------------------------------------*/
+
+	/* PURPOSE:		What does this function do? (must be present) 
+		RECEIVES:   List every argument name and explain each argument. 
+						(omit if the function has no arguments) 
+		RETURNS:    Explain the value returned by the function. 
+						(omit if the function returns no value) 
+		REMARKS:    Explain any special preconditions or postconditions. 
+						See example below. (omit if function is unremarkable) 
+	*/
