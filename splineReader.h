@@ -50,7 +50,7 @@ Cvec3f* splineReader::parseSplineFile(string filename)
 		// Setup array
 		string numOfPoints = "";
 		getline(splineFile, numOfPoints);
-		int size = atoi(numOfPoints.c_str());
+		int size = size = atoi(numOfPoints.c_str());
 		splineArray = new Cvec3f[size];
 			
 		int index = 0;
@@ -77,15 +77,23 @@ Cvec3f splineReader::parseCvec(string spline)
 		REMARKS:	Precondition:	string format must be x1-float,z1-float
 	*/
 		
+	float x = 0;
+	float z = 0;
+	
 	// Split into two tokens
 	string delimiter = ",";
-	int comma = spline.find(delimiter);
-	string tokenX = spline.substr(0, comma);
-	string tokenZ = spline.substr(comma);
-
-	// Convert tokens to floats
-	float x = atof(tokenX.c_str());
-	float z = atof(tokenZ.c_str());
+	unsigned int comma = spline.find(delimiter);
+	if (comma != npos) //Might need to switch to -1
+	{
+		string tokenX = spline.substr(0, comma);
+		string tokenZ = spline.substr(comma);
+	
+		// Convert tokens to floats
+		x = atof(tokenX.c_str());
+		z = atof(tokenZ.c_str());
+	}
+	else
+	   cout << "Bad line: Using <0, 0, 0>" << endl;
 
 	return Cvec3f(x, 0, z);
 }
