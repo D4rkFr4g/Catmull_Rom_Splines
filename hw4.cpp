@@ -266,14 +266,6 @@ struct RigidBody
 	{
 		RigTForm respectFrame = invEyeRbt;
 		draw(curSS, respectFrame, Matrix4());
-		
-		/*
-		//2nd Method Rotations are scaled correctly Other scaling problems
-		rtf = rtf * RigTForm(Cvec3(4,0,0));
-		Matrix4 respectFrame2 = RigTForm::makeTRmatrix(invEyeRbt, Matrix4());
-		draw(curSS, respectFrame2);
-		rtf = rtf * RigTForm(Cvec3(-4,0,0));
-		*/
 	}
 
 	void draw(const ShaderState& curSS, RigTForm respectFrame_, Matrix4 respectScale_)
@@ -440,110 +432,21 @@ static Geometry* initCubes()
   return new Geometry(&vtx[0], &idx[0], vbLen, ibLen);
 }
 
-static Geometry* initCylinder() {
-  int ibLen, vbLen;
-  int slices = 12;
-  int stacks = 12;
-  float radius = 10.0;
-  float height = 1;
-  getCylinderVbIbLen(slices, vbLen, ibLen);
-
-  // Temporary storage for cube geometry
-  vector<VertexPN> vtx(vbLen);
-  vector<unsigned short> idx(ibLen);
-
-  makeCylinder(radius, slices, height, vtx.begin(), idx.begin());
-  return new Geometry(&vtx[0], &idx[0], vbLen, ibLen);
-}
-/*-----------------------------------------------*/
-void initRobot()
+void initDominos()
 {
-	/* PURPOSE:		Initializes each body part of the robot to it's position, scale, and rotation  
+	/* PURPOSE:		Initializes each domino to it's position, scale, and rotation  
 	*/
-
+/*
 	//0-Robot - Used as a container for the robot as a whole
 	RigTForm rigTemp = RigTForm(Cvec3(0,4.404,0), Quat().makeYRotation(90));
 	Matrix4 scaleTemp = Matrix4::makeScale(Cvec3(1.9,1.9,1.9));//1.9
-	
+
 	RigidBody *robot = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,1));
 	robot->name = "robot";
 	robot->isVisible = false;
+*/
 
-	//1-Head
-	rigTemp = RigTForm(Cvec3(0.0,0.0,0.0));//1.85
-	scaleTemp = Matrix4::makeScale(Cvec3(0.5,0.5,0.5));
-	RigidBody *head = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,1,0));
-	head->name = "head";
-
-	//2-Body
-	rigTemp = RigTForm(Cvec3(0.0,-1.6,0.0));//-1.6
-	scaleTemp = Matrix4::makeScale(Cvec3(1.6,2.4,1.2));
-	RigidBody *body = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,0));
-	body->name = "body";
-
-	//3-Left Arm
-	rigTemp = RigTForm(Cvec3(-0.95,0.65,0.6), Quat().makeXRotation(90));
-	scaleTemp = Matrix4::makeScale(Cvec3(0.25,0.6,0.25));
-	RigidBody *leftArm = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,1,0));
-	leftArm->name = "leftArm";
-
-	//4-Right Arm
-	rigTemp = RigTForm(Cvec3(.95,0.65,0.6), Quat().makeXRotation(90));
-	scaleTemp = Matrix4::makeScale(Cvec3(0.25,0.6,.25));
-	RigidBody *rightArm = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,1,0));
-	rightArm->name = "rightArm";
-
-	// Left Hip Joint
-	rigTemp = RigTForm(Cvec3(-0.25,-1.0,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(0.1,0.1,0.1));
-	RigidBody *leftHipJoint = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,1));
-	leftHipJoint->name = "leftHipJoint";
-	//leftHipJoint->isVisible = false;
-
-	//5-Left Leg
-	rigTemp = RigTForm(Cvec3(0.0,-1.0,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(2.5,8,2.5));
-	RigidBody *leftLeg = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,0));
-	leftLeg->name = "leftLeg";
-
-	// Right Hip Joint
-	rigTemp = RigTForm(Cvec3(0.25,-1.0,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(0.1,0.1,0.1));
-	RigidBody *rightHipJoint = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,1));
-	rightHipJoint->name = "rightHipJoint";
-	//rightHipJoint->isVisible = false;
-
-	//6-Right Leg
-	rigTemp = RigTForm(Cvec3(0.0,-1.0,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(2.5,8,2.5));
-	RigidBody *rightLeg = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,0));
-	rightLeg->name = "rightLeg";
-
-	//7-Bolt
-	rigTemp = RigTForm(Cvec3(0.0,0.0,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(1.2,.1,0.1));
-	RigidBody *bolt = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0.5,0.5,0.5));
-	bolt->name = "bolt";
-
-	//8-Hair
-	rigTemp = RigTForm(Cvec3(0.0,.5,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(1.2,.2,1.2));
-	RigidBody *hair = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,0));
-	hair->name = "hair";
-
-	//9-ScaleReference
-	rigTemp = RigTForm(Cvec3(0.0,2.5,0.0));
-	scaleTemp = Matrix4::makeScale(Cvec3(0.1,5,0.1));
-	RigidBody *scaleReference = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(1,0,0));
-	scaleReference->name = "scaleReference";
-	scaleReference->isVisible = false;
-
-	//10-Cylinder
-	//rigTemp = RigTForm(Cvec3(-2.0,3.0,0.0));
-	//scaleTemp = Matrix4::makeScale(Cvec3(.1,.3,.1));
-	//RigidBody *cylinder = RigidBody(rigTemp, scaleTemp, &RigidBody(), initCylinder(), Cvec3(1,1,1));
-	//cylinder->name = "cylinder";
-
+/*
 	//Setup Children
 	robot->numOfChildren = 1;
 	head->numOfChildren = 3;
@@ -553,29 +456,13 @@ void initRobot()
 
 	robot->children = new RigidBody*[robot->numOfChildren];
 	robot->children[0] = head;
-
-	head->children = new RigidBody*[head->numOfChildren];
-	head->children[0] = hair;
-	head->children[1] = bolt;
-	head->children[2] = body;
-
-	body->children = new RigidBody*[body->numOfChildren];
-	body->children[0]  = leftArm;
-	body->children[1]  = rightArm;
-	body->children[2]  = leftHipJoint;
-	body->children[3]  = rightHipJoint;
-	
-	leftHipJoint->children = new RigidBody*[leftHipJoint->numOfChildren];
-	leftHipJoint->children[0]  = leftLeg;
-	
-	rightHipJoint->children = new RigidBody*[rightHipJoint->numOfChildren];
-	rightHipJoint->children[0]  = rightLeg;
-
+*/
+/*
 	//Add to global RigidBody array
 	g_rigidBodies[0] = *robot;
 	g_rigidBodies[1] = *scaleReference;
 	//g_rigidBodies[2] = cylinder;
-
+*/
 	glutPostRedisplay();
 }
 /*-----------------------------------------------*/
@@ -697,7 +584,7 @@ static void motion(const int x, const int y) {
 }
 
 /*-----------------------------------------------*/
-static void timer(int value)
+static void keyboardTimer(int value)
 {
 	// Flip Keyboard
 	isKeyboardActive = !isKeyboardActive;
@@ -708,275 +595,12 @@ static void timer(int value)
 	
 
 	if (!isKeyboardActive)
-		glutTimerFunc(msecs, timer, 0);
+		glutTimerFunc(msecs, keyboardTimer, 0);
 }
 /*-----------------------------------------------*/
-static void animateRobot(int value)
+static void animate(int value)
 {
-	static float stopwatch = 0;
-	float msecsPerFrame = 1/(g_framesPerSecond / 1000);
-	static int animationPart = 0;
-	static bool isAnimating = true;
-	static float stepsPerSecond = 20.0/34.0; // Time Allowed / Steps taken
-
-	//Initial walk to right 5secs (+)x-axis
-	static RigTForm start = g_rigidBodies[0].rtf;
-	static RigTForm end = RigTForm(Cvec3(5,0,0)) * start;
-	static float totalTime = stepsPerSecond * 5 * 1000;
-	static float elapsedTime = 0;
-	
-	//Handles which part of animation is currently running
-	if (elapsedTime > totalTime)
-	{
-		animationPart++;
-
-		//end = g_rigidBodies[0].rtf;
-		g_rigidBodies[0].rtf = end;
-
-		//Rotate
-		if (animationPart == 1 || animationPart == 3 || animationPart == 5 || animationPart == 7)
-		{
-			start = end;
-			end = RigTForm(start.getTranslation(), Quat::makeYRotation(90) * start.getRotation());
-			
-			totalTime = stepsPerSecond * 1 * 1000;
-		}
-		//Walk (-)z 10 paces
-		else if (animationPart == 2)
-		{
-			start = end;
-			end = RigTForm(Cvec3(0,0,-10)) * start;
-			totalTime = stepsPerSecond * 10 * 1000;
-		}
-		//Walk (-)x 5 paces
-		else if (animationPart == 4)
-		{
-			start = end;
-			end = RigTForm(Cvec3(-5,0,0)) * start;
-			totalTime = stepsPerSecond * 5 * 1000;
-		}
-		//Walk (+)z 10 paces
-		else if (animationPart == 6)
-		{
-			start = end;
-			end = RigTForm(Cvec3(0,0,10)) * start;
-			totalTime = stepsPerSecond * 10 * 1000;
-		}
-		else
-		{	
-			glutPostRedisplay();
-
-			isAnimating = false;
-
-			//Reset values to default
-			animationPart = 0;
-			start = g_rigidBodies[0].rtf;
-			end = RigTForm(Cvec3(5,0,0)) * start;
-			totalTime = stepsPerSecond * 5 * 1000;
-		}
-
-		elapsedTime = 0;
-	}
-
-	if (isAnimating)
-	{
-		float alpha = elapsedTime / totalTime;
-		
-		//Handle Translation Interpolation
-		Cvec3 startVec = start.getTranslation();
-		Cvec3 temp = end.getTranslation() - startVec; 
-		g_rigidBodies[0].rtf.setTranslation(startVec + (temp * alpha));
-
-		Quat startQ = start.getRotation(); // Initial rotation
-		Quat endQ = end.getRotation();	// Final rotation
-
-		//Handle Rotational Interpolation
-		if (g_interpolationType == I_POWER) // Quaternion Powering
-		{	
-			if (endQ - startQ != Quat(0,0,0,0)) // Check for actual rotation
-			{
-				Quat currentQ = Quat::pow(endQ, alpha);
-				//Quat currentQ = Quat::pow(endQ * inv(startQ), alpha); // Calculate this frames rotation Quat //Slerping???
-				g_rigidBodies[0].rtf.setRotation(startQ * currentQ); // Apply rotation with respect to starting Position //Double rotates
-			}
-		}
-		else if (g_interpolationType == I_SLERP) //Spherical linear interpolation
-		{
-			g_rigidBodies[0].rtf.setRotation(Quat::slerp(startQ, endQ, alpha) * startQ);
-		}
-		else if (g_interpolationType == I_LERP)
-		{
-			Quat q = normalize(Quat::lerp(startQ, endQ, alpha)); //Normalize lerped quaternion
-			g_rigidBodies[0].rtf.setRotation(q);
-		}
-
-		elapsedTime += msecsPerFrame;
-		glutPostRedisplay();
-	
-		//Time total animation
-		stopwatch += msecsPerFrame;
-
-		glutTimerFunc(msecsPerFrame, animateRobot, 0);
-	}
-	else
-	{
-		isAnimating =  true;
-		//cout << "Stopwatch = " << (stopwatch - msecsPerFrame * 2) / 1000 << "\n"; // Display final time not counting first and last frame
-		stopwatch = 0;
-	}
-}
-/*-----------------------------------------------*/
-static void animateLegs(int value)
-{
-	static float stopwatch = 0;
-	float msecsPerFrame = 1/(g_framesPerSecond / 1000);
-	static int animationPart = 0;
-	static bool isAnimating = true;
-	const static float degreesPerStep = 30;
-	const static float stepsPerSecond = 20.0/34.0; // Time Allowed / Steps taken
-	RigTForm *leftLeg = &g_rigidBodies[0].children[0]->children[2]->children[2]->rtf;
-	RigTForm *rightLeg = &g_rigidBodies[0].children[0]->children[2]->children[3]->rtf;
-
-	static RigTForm startLeftLeg = *leftLeg;
-	static RigTForm endLeftLeg = startLeftLeg;
-	static RigTForm startRightLeg = *rightLeg;
-	static RigTForm endRightLeg = startRightLeg;
-
-	static float totalTime = stepsPerSecond * 1 * 1000;
-	static float elapsedTime = totalTime;
-	
-	
-
-	//Handles which part of animation is currently running
-	if (elapsedTime >= totalTime)
-	{
-		leftLeg->setRotation(endLeftLeg.getRotation());
-		rightLeg->setRotation(endRightLeg.getRotation());
-
-
-		// Initialize with first step
-		if (animationPart == 0)
-		{
-			startLeftLeg = endLeftLeg;
-			startRightLeg = endRightLeg;
-
-			endLeftLeg = RigTForm(Quat::makeXRotation(-degreesPerStep) * startLeftLeg.getRotation());
-			endRightLeg = RigTForm(Quat::makeXRotation(degreesPerStep) * startRightLeg.getRotation());
-
-			//cout << "endLeftLeg Angle = " << endLeftLeg.getRotation().getAngle() << "\n";
-			//cout << "endRightLeg Angle = " << endRightLeg.getRotation().getAngle() << "\n";
-
-			totalTime = stepsPerSecond * 0.5 * 1000;
-		}
-		else if (animationPart < 34)
-		{
-			startLeftLeg = endLeftLeg;
-			startRightLeg = endRightLeg;
-			if (animationPart %2 == 0)
-			{
-				endLeftLeg = RigTForm(Quat::makeXRotation(-degreesPerStep * 2) * startLeftLeg.getRotation());
-				endRightLeg = RigTForm(Quat::makeXRotation(degreesPerStep * 2) * startRightLeg.getRotation());
-			}
-			else
-			{
-				endLeftLeg = RigTForm(Quat::makeXRotation(degreesPerStep * 2) * startLeftLeg.getRotation());
-				endRightLeg = RigTForm(Quat::makeXRotation(-degreesPerStep * 2) * startRightLeg.getRotation());
-			}
-			//cout << "Degrees = " << degreesPerStep << "\n";
-			//cout << "endLeftLeg Angle = " << endLeftLeg.getRotation().getAngle() << "\n";
-			//cout << "endRightLeg Angle = " << endRightLeg.getRotation().getAngle() << "\n";
-
-			totalTime = stepsPerSecond * 1 * 1000;
-		}
-		else if (animationPart == 34)
-		{
-			startLeftLeg = endLeftLeg;
-			startRightLeg = endRightLeg;
-
-			endLeftLeg = RigTForm(Quat());
-			endRightLeg = RigTForm(Quat());
-
-			totalTime = stepsPerSecond * 0.5 * 1000;
-		}
-		else
-		{
-			glutPostRedisplay();
-
-			isAnimating = false;
-
-			//Reset values to default
-			startLeftLeg = *leftLeg;
-			startRightLeg = *rightLeg;
-			totalTime = stepsPerSecond * 1 * 1000;
-		}
-
-		animationPart++;
-
-		elapsedTime = 0;
-	}
-
-	if (isAnimating)
-	{
-		float alpha = elapsedTime / totalTime;
-
-		// Initial rotations
-		Quat startLeftLegQ = leftLeg->getRotation();
-		Quat startRightLegQ = rightLeg->getRotation();
-
-		// Final rotations
-		Quat endLeftLegQ = endLeftLeg.getRotation();
-		Quat endRightLegQ = endRightLeg.getRotation();
-
-		// Handle Rotational Interpolation
-		if (g_interpolationType == I_POWER) // Quaternion Powering
-		{	
-			if (endLeftLegQ - startLeftLegQ != Quat(0,0,0,0)) // Check for actual rotation
-			{
-				Quat currentLeftLegQ = Quat::pow(endLeftLegQ, alpha);
-				leftLeg->setRotation(startLeftLegQ * currentLeftLegQ); // Apply rotation with respect to starting Position //Double rotates
-			}
-
-			if (endRightLegQ - startRightLegQ != Quat(0,0,0,0)) // Check for actual rotation
-			{
-				Quat currentRightLegQ = Quat::pow(endRightLegQ, alpha);
-				rightLeg->setRotation(startRightLegQ * currentRightLegQ); // Apply rotation with respect to starting Position //Double rotates
-			}
-		}
-		else if (g_interpolationType == I_SLERP) //Spherical linear interpolation
-		{
-			leftLeg->setRotation(Quat::slerp(startLeftLegQ, endLeftLegQ, alpha) * startLeftLegQ);
-			rightLeg->setRotation(Quat::slerp(startRightLegQ, endRightLegQ, alpha) * startRightLegQ);
-		}
-		else if (g_interpolationType == I_LERP)
-		{
-			//Normalize quaternions
-			Quat leftLegQ = normalize(Quat::lerp(startLeftLegQ, endLeftLegQ, alpha));
-			Quat rightLegQ = normalize(Quat::lerp(startRightLegQ, endRightLegQ, alpha));
-
-			leftLeg->setRotation(leftLegQ);
-			rightLeg->setRotation(rightLegQ);
-		}
-
-		elapsedTime += msecsPerFrame;
-		glutPostRedisplay();
-	
-		//Time total animation
-		stopwatch += msecsPerFrame;
-
-		glutTimerFunc(msecsPerFrame, animateLegs, 0);
-	}
-	else
-	{
-		isAnimating =  true;
-		//cout << "Stopwatch Legs = " << (stopwatch - msecsPerFrame * 2) / 1000 << "\n"; // Display final time not counting first and last frame
-		stopwatch = 0;
-		animationPart = 0;
-		elapsedTime = totalTime;
-	}
-}
-/*-----------------------------------------------*/
-static void animateCamera(int value)
-{
+	// Static Animation General Variables
 	static float stopwatch = 0;
 	float msecsPerFrame = 1/(g_framesPerSecond / 1000);
 	static int animationPart = 0;
@@ -984,44 +608,40 @@ static void animateCamera(int value)
 	const static float stepsPerSecond = 10.0/2.0; // Time Allowed / Steps taken
 	static float totalTime = stepsPerSecond * 1 * 1000;
 	static float elapsedTime = 0;
-	static float x;
-	static float z;
-	static float radius = g_eyeRbt.getTranslation()[2];
-	static float helperDegrees = 0;
-	static float offsetDegrees = 90;
 	static bool isFirstEntry = true;
-	
-	static RigTForm start = g_eyeRbt;
-	static RigTForm end = RigTForm(g_eyeRbt.getTranslation(), Quat::makeYRotation(-180) * start.getRotation());
-	//static RigTForm end = RigTForm();
 
+	// Static Animation Specific Variables
+	//static float 
+	
 	// Used to reset variables every time animation is run
 	if (isFirstEntry)
 	{
-		start = g_eyeRbt;
-		radius = g_eyeRbt.getTranslation()[2];
-		end = RigTForm(g_eyeRbt.getTranslation(), Quat::makeYRotation(-180) * start.getRotation());
+		// Animation General Resets
+		isAnimating =  true;
+		stopwatch = 0;
+		animationPart = 0;
+
+		// Animation Specific Resets
+
+		// Must be here
 		isFirstEntry = false;
-		//lookAtOrigin();
 	}
 
 	//Handles which part of animation is currently running
 	if (elapsedTime >= totalTime)
 	{
-		g_eyeRbt.setRotation(end.getRotation());
+		//g_eyeRbt.setRotation(end.getRotation());
 
 		if (animationPart == 0)
 		{
-			start = end;
-			end = RigTForm(g_eyeRbt.getTranslation(), Quat::makeYRotation(-180) * start.getRotation());
-			helperDegrees = 180;
+
 		}
 		else
 		{
 			glutPostRedisplay();
 			isAnimating = false;
 		}
-		//Reset values to default		
+		//Reset values to default for next Animation Part		
 		totalTime = stepsPerSecond * 1 * 1000;
 		elapsedTime = 0;
 
@@ -1030,60 +650,25 @@ static void animateCamera(int value)
 
 	if (isAnimating)
 	{
+		// Determine percentage of animation
 		float alpha = elapsedTime / totalTime;
-///*
-		//Handle Translation Interpolation
-		Cvec3 startVec = g_eyeRbt.getTranslation();
-		float degree = ((alpha * 180) + helperDegrees) + offsetDegrees;
-		float toRadians = CS175_PI / 180.0;
-		x = cos(degree * toRadians) * radius;
-		z = sin(degree * toRadians) * radius;
-		g_eyeRbt.setTranslation(Cvec3(x,g_eyeRbt.getTranslation()[1],z));
-//*/
-		// Initial rotations
-		Quat startQ = start.getRotation();
 
-		// Final rotations
-		Quat endQ = end.getRotation();
 
-		// Handle Rotational Interpolation
-		if (g_interpolationType == I_POWER) // Quaternion Powering
-		{	
-			if (endQ - startQ != Quat(0,0,0,0)) // Check for actual rotation
-			{
-				Quat currentQ = Quat::pow(endQ, alpha);
-				g_eyeRbt.setRotation(startQ * currentQ); // Apply rotation with respect to starting Position //Double rotates
-			}
-		}
-		else if (g_interpolationType == I_SLERP) //Spherical linear interpolation
-		{
-			//startQ = inv(Quat()) * startQ;// * Quat();
-			//endQ = inv(Quat()) * endQ;// * Quat();
-			g_eyeRbt.setRotation(Quat::slerp(startQ, endQ, alpha) * startQ);
-		}
-		else if (g_interpolationType == I_LERP)
-		{
-			//Normalize quaternions
-			Quat q = normalize(Quat::lerp(startQ, endQ, alpha));
-
-			g_eyeRbt.setRotation(q);
-		}
-
+		// Update Times and redisplay
 		elapsedTime += msecsPerFrame;
 		glutPostRedisplay();
 	
-		//Time total animation
+		//Time total animation for Debugging
 		stopwatch += msecsPerFrame;
 
-		glutTimerFunc(msecsPerFrame, animateCamera, 0);
+		//Recall timer for next frame
+		glutTimerFunc(msecsPerFrame, animate, 0);
 	}
 	else
 	{
-		isAnimating =  true;
 		//cout << "Stopwatch Camera = " << (stopwatch - msecsPerFrame * 2) / 1000 << "\n"; // Display final time not counting first and last frame
-		stopwatch = 0;
-		animationPart = 0;
-		helperDegrees = 0;
+		
+		// Must be here to setup next animation call
 		isFirstEntry = true;
 
 		glutPostRedisplay();
@@ -1175,43 +760,21 @@ static void keyboard(const unsigned char key, const int x, const int y)
 			g_framesPerSecond = 0.125;
 		}
 	
-		if (key == 'q')
+		if (key == 'i')
 		{
-			Quat q = g_rigidBodies[0].rtf.getRotation();
-			g_rigidBodies[0].rtf.setRotation(q * Quat::makeYRotation(15));
-		}
-		else if (key == 'p')
-		{
-			g_interpolationType = I_POWER;
-		}
-		else if (key == 's')
-		{
-			g_interpolationType = I_SLERP;
-		}
-		else if (key == 'l')
-		{
-			g_interpolationType = I_LERP;
-		}
-		else if (key == 'r')
-		{
-			float msecs =  0 * 1000;
-			glutTimerFunc(msecs, timer, PAUSE);
-			glutTimerFunc(msecs, animateCamera,0);
+			// When the user hits the i (for interpolate) key. 
+			//Your program should interpolate evenly five dominoes
+			//between each control point using these Catmull Rom splines.
+			//The direction the interpolated dominoes are facing should
+			//be based on the first directive of the splines at that point.
 		}
 		else if (key == 'a')
 		{
-			float msecs =  0 * 1000;
-			glutTimerFunc(msecs, animateRobot, 0);
-			glutTimerFunc(msecs, animateLegs, 0);
+			// if hitting the a key draws the interpolants, then starting
+			//with the first domino, topples the dominoes over as in a
+			//domino effect demonstration.
 		}
-		else if (key == ',')
-		{
-			g_eyeRbt.setRotation(g_eyeRbt.getRotation() * Quat().makeZRotation(15));
-		}
-		else if (key == '.')
-		{
-			g_eyeRbt.setRotation(g_eyeRbt.getRotation() * Quat().makeZRotation(-15));
-		}
+		// TODO Remove at the End
 		else if (key == '-')
 		{
 			float max = 20;
@@ -1223,10 +786,8 @@ static void keyboard(const unsigned char key, const int x, const int y)
 				g_eyeRbt.setTranslation(Cvec3(cameraTrans[0], cameraTrans[1], max));
 
 			lookAtOrigin();
-
-			//cout << "( " << g_eyeRbt.getTranslation()[0] << ", " << g_eyeRbt.getTranslation()[1] << ", " << g_eyeRbt.getTranslation()[2] << "\n";
-
 		}
+		// TODO Remove at the End
 		else if (key == '=')
 		{
 			float min = 5;
@@ -1238,8 +799,6 @@ static void keyboard(const unsigned char key, const int x, const int y)
 				g_eyeRbt.setTranslation(Cvec3(cameraTrans[0], cameraTrans[1], min));
 
 			lookAtOrigin();
-
-			//cout << "( " << g_eyeRbt.getTranslation()[0] << ", " << g_eyeRbt.getTranslation()[1] << ", " << g_eyeRbt.getTranslation()[2] << "\n";
 		}
 	}
 
@@ -1287,7 +846,7 @@ static void initGeometry()
 {
 	//Initialize Object Matrix array
 	//initObjectRbt();
-	initRobot();
+	initDominos();
 	initGround();
 	//initCubes();
 	//initCylinder();
