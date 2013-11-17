@@ -118,6 +118,7 @@
     <None Include="shaders\solid-gl2.fshader" />
     <None Include="shaders\solid-gl3.fshader" />
     <None Include="spline.txt" />
+    <None Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

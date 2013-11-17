@@ -181,6 +181,7 @@ void makeSphere(float radius, int slices, int stacks, VtxOutIter vtxIter, IdxOut
     }
   }
 }
+
 template<typename VtxOutIter, typename IdxOutIter>
 void makeCylinder(float radius, int slices, float height, VtxOutIter vtxIter, IdxOutIter idxIter) {
   using namespace std;

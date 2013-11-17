@@ -66,7 +66,9 @@ using namespace tr1; // for shared_ptr
 // ----------------------------------------------------------------------------
 static const bool g_Gl2Compatible = false;
 
+// Forward Declarations
 struct RigidBody;
+static RigidBody* makeDomino();
 
 static const float g_frustMinFov = 60.0;  // A minimal of 60 degree field of view
 static float g_frustFovY = g_frustMinFov; // FOV in y direction (updated by updateFrustFovY)
@@ -331,7 +333,7 @@ struct RigidBody
 };
 /*-----------------------------------------------*/
 // Vertex buffer and index buffer associated with the ground and cube geometry
-static shared_ptr<Geometry> g_ground, g_cube, g_cylinder;
+static shared_ptr<Geometry> g_ground, g_cube, g_sphere;
 
 // --------- Scene
 
@@ -419,7 +421,7 @@ static void initGround() {
   unsigned short idx[] = {0, 1, 2, 0, 2, 3};
   g_ground.reset(new Geometry(&vtx[0], &idx[0], 4, 6));
 }
-
+/*-----------------------------------------------*/
 static Geometry* initCubes() 
 {
   int ibLen, vbLen;
@@ -432,8 +434,24 @@ static Geometry* initCubes()
   makeCube(1, vtx.begin(), idx.begin());
   return new Geometry(&vtx[0], &idx[0], vbLen, ibLen);
 }
+/*-----------------------------------------------*/
+static Geometry* initSpheres() 
+{
+	int slices = 20;
+	int stacks = 20;
+	float radius = 1;
+	int ibLen, vbLen;
+	getSphereVbIbLen(slices, stacks, vbLen, ibLen);
 
-void initDominos()
+	// Temporary storage for cube geometry
+	vector<VertexPN> vtx(vbLen);
+	vector<unsigned short> idx(ibLen);
+
+	makeSphere(radius, slices, stacks, vtx.begin(), idx.begin());
+	return new Geometry(&vtx[0], &idx[0], vbLen, ibLen);
+}
+
+static void initDominos()
 {
 	/* PURPOSE:		Initializes each domino to it's position, scale, and rotation  
 	*/
@@ -464,7 +482,77 @@ void initDominos()
 	g_rigidBodies[1] = *scaleReference;
 	//g_rigidBodies[2] = cylinder;
 */
+	int numOfDominos = 1;
+
+	for (int i = 0; i < numOfDominos; i++)
+	{
+		RigidBody *domino;
+		domino = makeDomino();
+		g_rigidBodies[0] = *domino;
+		
+	}
+
 	glutPostRedisplay();
+}
+/*-----------------------------------------------*/
+static RigidBody* makeDomino()
+{
+	/* PURPOSE:		Creates a domino object  
+		RETURNS:    RigidBody* that points to the domino 
+	*/
+
+	float height = 4.0;
+	float width = 1.0;
+	float thick = 0.5;
+
+	RigTForm rigTemp = RigTForm();
+	Matrix4 scaleTemp = Matrix4();
+	
+	// Make container
+	RigidBody *domino = new RigidBody(RigTForm(), Matrix4(), NULL, initCubes(), Cvec3(0.5, 0.5, 0.5));
+	domino->isVisible = false;
+	domino->name = "container";
+
+	// Make body
+	rigTemp = RigTForm(Cvec3(0, 0, 0));
+	scaleTemp = Matrix4::makeScale(Cvec3(width, height, thick));
+
+	RigidBody *body = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,0));
+	body->name = "body";
+
+	// Make bar
+	rigTemp = RigTForm(Cvec3(0, 0, thick * .5));
+	scaleTemp = Matrix4::makeScale(Cvec3(0.75, 0.05, 0.005));
+
+	RigidBody *bar = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(1,1,1));
+	bar->name = "bar";
+
+	// Make Dots
+	rigTemp = RigTForm(Cvec3(0, height * 0.25, thick * .51));
+	scaleTemp = Matrix4::makeScale(Cvec3(.1, .1, .005)) * inv(body->scale);
+
+	RigidBody *dot0 = new RigidBody(rigTemp, scaleTemp, NULL, initSpheres(), Cvec3(1,1,1));
+	dot0->name = "dot0";
+
+	rigTemp = RigTForm(Cvec3(0, -height * 0.25, thick * .51));
+	scaleTemp = Matrix4::makeScale(Cvec3(.1, .1, .005)) * inv(body->scale);
+
+	RigidBody *dot1 = new RigidBody(rigTemp, scaleTemp, NULL, initSpheres(), Cvec3(1,1,1));
+	dot1->name = "dot1";
+
+	//Setup Children
+	domino->numOfChildren = 1;
+	body->numOfChildren = 3;
+
+	domino->children = new RigidBody*[domino->numOfChildren];
+	domino->children[0] = body;
+
+	body->children = new RigidBody*[body->numOfChildren];
+	body->children[0] = bar;
+	body->children[1] = dot0;
+	body->children[2] = dot1;
+
+	return domino;
 }
 /*-----------------------------------------------*/
 // takes a projection matrix and send to the the shaders
@@ -850,6 +938,11 @@ static void initGeometry()
 	//initCylinder();
 }
 
+static void initSplines()
+{
+	Cvec3f* splineArray = splineReader::parseSplineFile("spline.txt");
+}
+
 int main(int argc, char * argv[]) {
   try {
 		initGlutState(argc,argv);
@@ -866,9 +959,7 @@ int main(int argc, char * argv[]) {
 		initShaders();
 		initGeometry();
 		initCamera();
-
-		Cvec3f* splineArray = splineReader::parseSplineFile("spline.txt");
-
+		initSplines();
 /*		
 		//Debug stuff
 		cout << "\n";

@@ -15,8 +15,3 @@ The direction the interpolated dominoes are facing should be based on the first 
 
 
 *Use lookat Matrix function at the point the RigTform is converted to a Matrix.
-
-
-
-
-Test file reader on a non-existent file to see if try/catch block is needed in splineReader
