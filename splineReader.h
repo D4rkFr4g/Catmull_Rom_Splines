@@ -35,12 +35,12 @@ private:
 Cvec3f* splineReader::parseSplineFile(string filename)
 {
 	/*	PURPOSE:    	Reads file and assigns spline points to array of Cvec3's 
-		RECEIVES:	filename - string address of file to be read location 
+		RECEIVES:		filename - string address of file to be read location 
 		RETURNS:    	Cvec3 array that holds all spline points read from file 
 		REMARKS:    	Precondition: filename must be valid
-				Precondition: first line is number of points
+							Precondition: first line is number of points
 	*/
-	Cvec3f *splineArray;
+	Cvec3f *splineArray = NULL;
 	ifstream splineFile (filename);
 		
 	//Process file
@@ -71,10 +71,10 @@ Cvec3f* splineReader::parseSplineFile(string filename)
 /*-----------------------------------------------*/
 Cvec3f splineReader::parseCvec(string spline)
 {
-	/* 	PURPOSE:	Converts string into Cvec3 
+	/* PURPOSE:			Converts string into Cvec3 
 		RECEIVES:   	spline - string that contains Cvec coordinates 
 		RETURNS:    	Cvec3f that contains parsed points of the spline
-		REMARKS:	Precondition:	string format must be x1-float,z1-float
+		REMARKS:			Precondition:	string format must be x1-float,z1-float
 	*/
 		
 	float x = 0;
@@ -83,7 +83,7 @@ Cvec3f splineReader::parseCvec(string spline)
 	// Split into two tokens
 	string delimiter = ",";
 	unsigned int comma = spline.find(delimiter);
-	if (comma != npos) //Might need to switch to -1
+	if (comma != -1)
 	{
 		string tokenX = spline.substr(0, comma);
 		string tokenZ = spline.substr(comma);
