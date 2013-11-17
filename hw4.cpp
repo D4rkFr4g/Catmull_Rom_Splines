@@ -84,10 +84,11 @@ static bool g_mouseClickDown = false;    // is the mouse button pressed
 static bool g_mouseLClickButton, g_mouseRClickButton, g_mouseMClickButton;
 static int g_mouseClickX, g_mouseClickY; // coordinates for mouse click event
 static int g_activeShader = 0;
-static const int g_numOfObjects = 2; //Number of cube objects to be drawn
+static int g_numOfObjects = 0; //Number of objects to be drawn
 static float g_framesPerSecond = 32;
 static int g_interpolationType  = I_POWER;
 static bool isKeyboardActive = true;
+static Cvec3* g_splineArray;
 
 struct ShaderState {
   GlProgram program;
@@ -227,6 +228,7 @@ struct RigidBody
 	Cvec3 color;
 	Geometry *geom;
 	bool isVisible;
+	bool isChildVisible;
 	string name;
 
 	RigidBody()
@@ -238,6 +240,7 @@ struct RigidBody
 		color = Cvec3(.5,.5,.5);
 		geom = NULL;
 		isVisible = true;
+		isChildVisible = true;
 	}
 
 	~RigidBody()
@@ -302,9 +305,12 @@ struct RigidBody
 		}
 
 		//Draw Children
-		for (int i = 0; i < numOfChildren; i++)
+		if (isChildVisible)
 		{
-			children[i]->draw(curSS, respectFrame, respectScale);
+			for (int i = 0; i < numOfChildren; i++)
+			{
+				children[i]->draw(curSS, respectFrame, respectScale);
+			}
 		}
 		
 	}
@@ -340,7 +346,7 @@ static shared_ptr<Geometry> g_ground, g_cube, g_sphere;
 static const Cvec3 g_light1(2.0, 3.0, 14.0), g_light2(-2, -3.0, -5.0);  // define two lights positions in world space
 static RigTForm g_skyRbt = RigTForm(Cvec3(0.0, 3, 10.0)); // Default camera
 static RigTForm g_eyeRbt = g_skyRbt; //Set the g_eyeRbt frame to be default as the sky frame
-static RigidBody g_rigidBodies[g_numOfObjects]; // Array that holds each cube(body part) of the robot
+static RigidBody* g_rigidBodies;//[g_numOfObjects]; // Array that holds each Rigid Body Object
 
 ///////////////// END OF G L O B A L S //////////////////////////////////////////////////
 /*-----------------------------------------------*/
@@ -406,7 +412,7 @@ static void initCamera()
 	Cvec3 at = Cvec3(0.0, 0.0, 0.0);
 	Cvec3 up = Cvec3(0.0,1.0,0.0);
 	//g_skyRbt = lookAt(eye, at, up); // Default camera
-	g_skyRbt.setRotation(Quat().makeXRotation(lookAt(eye,up)));
+	g_skyRbt.setRotation(Quat().makeXRotation(lookAt(eye,up))); // TODO Change so lookat is done after conversion to Matrix
 	g_eyeRbt = g_skyRbt;
 }
 /*-----------------------------------------------*/
@@ -455,41 +461,48 @@ static void initDominos()
 {
 	/* PURPOSE:		Initializes each domino to it's position, scale, and rotation  
 	*/
-/*
-	//0-Robot - Used as a container for the robot as a whole
-	RigTForm rigTemp = RigTForm(Cvec3(0,4.404,0), Quat().makeYRotation(90));
-	Matrix4 scaleTemp = Matrix4::makeScale(Cvec3(1.9,1.9,1.9));//1.9
 
-	RigidBody *robot = new RigidBody(rigTemp, scaleTemp, NULL, initCubes(), Cvec3(0,0,1));
-	robot->name = "robot";
-	robot->isVisible = false;
-*/
+	int numOfDominos = g_numOfObjects + 5;
+	g_numOfObjects = numOfDominos;	// Could cause an issue if a non domino object is added
+	g_rigidBodies = new RigidBody[numOfDominos];
 
-/*
-	//Setup Children
-	robot->numOfChildren = 1;
-	head->numOfChildren = 3;
-	body->numOfChildren = 4;
-	leftHipJoint->numOfChildren = 1;
-	rightHipJoint->numOfChildren = 1;
-
-	robot->children = new RigidBody*[robot->numOfChildren];
-	robot->children[0] = head;
-*/
-/*
-	//Add to global RigidBody array
-	g_rigidBodies[0] = *robot;
-	g_rigidBodies[1] = *scaleReference;
-	//g_rigidBodies[2] = cylinder;
-*/
-	int numOfDominos = 1;
-
+	// Build Dominos
 	for (int i = 0; i < numOfDominos; i++)
 	{
 		RigidBody *domino;
 		domino = makeDomino();
-		g_rigidBodies[0] = *domino;
+		g_rigidBodies[i] = *domino;
+	}
+
+	// Set Domino Positions
+	for (int i = 0; i < numOfDominos; i++)
+	{
+		Cvec3 position;
+		Quat rotation;
+
+		// Set position according to the Spline file except the last 5 which start at the first point
+		if ( i < numOfDominos - 5)
+			position = g_splineArray[i];
+		else
+			position = g_splineArray[0];
+
+		g_rigidBodies[i].rtf.setTranslation(position);
+
+		// Set Rotations
+		if ( i < numOfDominos - 5)
+		{
+			rotation = Quat(); // TODO Calculate and set rotation
+		}
+		else
+			rotation = g_rigidBodies[0].rtf.getRotation();
 		
+		g_rigidBodies[i].rtf.setRotation(rotation);
+	}
+
+	// Hide the last 5 Dominos
+	for (int i = numOfDominos - 1; i >= numOfDominos - 5; i--)
+	{
+		g_rigidBodies[i].isChildVisible = false;
 	}
 
 	glutPostRedisplay();
@@ -498,7 +511,8 @@ static void initDominos()
 static RigidBody* makeDomino()
 {
 	/* PURPOSE:		Creates a domino object  
-		RETURNS:    RigidBody* that points to the domino 
+		RETURNS:    RigidBody* that points to the domino
+		REMARKS:		Creates a snake-eyes domino only
 	*/
 
 	float height = 4.0;
@@ -931,16 +945,14 @@ static void initShaders() {
 static void initGeometry() 
 {
 	//Initialize Object Matrix array
-	//initObjectRbt();
 	initDominos();
 	initGround();
-	//initCubes();
-	//initCylinder();
+
 }
 
 static void initSplines()
 {
-	Cvec3f* splineArray = splineReader::parseSplineFile("spline.txt");
+	g_splineArray = splineReader::parseSplineFile("spline.txt", &g_numOfObjects);
 }
 
 int main(int argc, char * argv[]) {
@@ -957,9 +969,10 @@ int main(int argc, char * argv[]) {
 
 		initGLState();
 		initShaders();
+		initSplines();
 		initGeometry();
 		initCamera();
-		initSplines();
+
 /*		
 		//Debug stuff
 		cout << "\n";

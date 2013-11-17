@@ -25,14 +25,14 @@ class splineReader
 	// x2-float,z2-float
 
 public:
-	static Cvec3f* parseSplineFile(string filename);
+	static Cvec3* parseSplineFile(string filename, int *numOfObjects);
 
 private:
-	static Cvec3f parseCvec(string spline);
-	static void printCvec(Cvec3f splinePoint);
+	static Cvec3 parseCvec(string spline);
+	static void printCvec(Cvec3 splinePoint);
 };
 /*-----------------------------------------------*/
-Cvec3f* splineReader::parseSplineFile(string filename)
+Cvec3* splineReader::parseSplineFile(string filename, int *numOfObjects)
 {
 	/*	PURPOSE:    	Reads file and assigns spline points to array of Cvec3's 
 		RECEIVES:		filename - string address of file to be read location 
@@ -40,7 +40,9 @@ Cvec3f* splineReader::parseSplineFile(string filename)
 		REMARKS:    	Precondition: filename must be valid
 							Precondition: first line is number of points
 	*/
-	Cvec3f *splineArray = NULL;
+
+	int count = 0;
+	Cvec3 *splineArray = NULL;
 	ifstream splineFile (filename);
 		
 	//Process file
@@ -51,29 +53,32 @@ Cvec3f* splineReader::parseSplineFile(string filename)
 		string numOfPoints = "";
 		getline(splineFile, numOfPoints);
 		int size = size = atoi(numOfPoints.c_str());
-		splineArray = new Cvec3f[size];
+		splineArray = new Cvec3[size];
 			
 		int index = 0;
 		while (getline(splineFile, spline))
 		{
 			//cout << spline << endl; // Check spline is created correct
 			splineArray[index] = parseCvec(spline);
-			//printCvec(splineArray[index]); // Check Cvec is stored correct
+			printCvec(splineArray[index]); // Check Cvec is stored correct
 			index++;
+			count++;
 		}
 		splineFile.close();
 	}
 	else
 		cout << "Could not open " << filename << endl;
 
+	*numOfObjects = count;
+
 	return splineArray;
 }
 /*-----------------------------------------------*/
-Cvec3f splineReader::parseCvec(string spline)
+Cvec3 splineReader::parseCvec(string spline)
 {
 	/* PURPOSE:			Converts string into Cvec3 
 		RECEIVES:   	spline - string that contains Cvec coordinates 
-		RETURNS:    	Cvec3f that contains parsed points of the spline
+		RETURNS:    	Cvec3 that contains parsed points of the spline
 		REMARKS:			Precondition:	string format must be x1-float,z1-float
 	*/
 		
@@ -86,7 +91,7 @@ Cvec3f splineReader::parseCvec(string spline)
 	if (comma != -1)
 	{
 		string tokenX = spline.substr(0, comma);
-		string tokenZ = spline.substr(comma);
+		string tokenZ = spline.substr(comma + 1);
 	
 		// Convert tokens to floats
 		x = atof(tokenX.c_str());
@@ -95,13 +100,13 @@ Cvec3f splineReader::parseCvec(string spline)
 	else
 	   cout << "Bad line: Using <0, 0, 0>" << endl;
 
-	return Cvec3f(x, 0, z);
+	return Cvec3(x, 0, z);
 }
 /*-----------------------------------------------*/
-void splineReader::printCvec(Cvec3f splinePoint)
+void splineReader::printCvec(Cvec3 splinePoint)
 {
 	/* 	PURPOSE:	Prints the Cvec3 
-		RECEIVES:	splinePoint - The Cvec3f to be printed. 
+		RECEIVES:	splinePoint - The Cvec3 to be printed. 
 	*/
 
 	float x = splinePoint[0];
