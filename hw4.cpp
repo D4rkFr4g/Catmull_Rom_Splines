@@ -39,6 +39,7 @@
 #include "glsupport.h"
 #include "rigtform.h"
 #include "splineReader.h"
+#include "catmullRomSpline.h"
 
 #define M_PI 3.1415926535897932384626433832795;
 enum {I_POWER, I_SLERP, I_LERP, PAUSE};
@@ -85,10 +86,12 @@ static bool g_mouseLClickButton, g_mouseRClickButton, g_mouseMClickButton;
 static int g_mouseClickX, g_mouseClickY; // coordinates for mouse click event
 static int g_activeShader = 0;
 static int g_numOfObjects = 0; //Number of objects to be drawn
+static int g_numOfControlPoints = 0;
 static float g_framesPerSecond = 32;
 static int g_interpolationType  = I_POWER;
 static bool isKeyboardActive = true;
 static Cvec3* g_splineArray;
+static int g_numOfInterpolantDominos = 5;
 
 struct ShaderState {
   GlProgram program;
@@ -474,8 +477,8 @@ static void initDominos()
 {
 	/* PURPOSE:		Initializes each domino to it's position, scale, and rotation  
 	*/
-
-	int numOfDominos = g_numOfObjects + 5;
+	int extraDominos = (g_numOfControlPoints - 4) * g_numOfInterpolantDominos;
+	int numOfDominos = g_numOfControlPoints + extraDominos;
 	g_numOfObjects = numOfDominos;	// Could cause an issue if a non domino object is added
 	g_rigidBodies = new RigidBody[numOfDominos];
 
@@ -494,18 +497,15 @@ static void initDominos()
 		Quat rotation;
 
 		// Set position according to the Spline file except the last 5 which start at the first point
-		if ( i < numOfDominos - 5)
+		if ( i < numOfDominos - extraDominos)
 			position = g_splineArray[i];
 		else
 			position = g_splineArray[0];
 
-		//Move up to sit on the ground
-		position += Cvec3(0,2,0); 
-
 		g_rigidBodies[i].rtf.setTranslation(position);
 
 		// Set Rotations
-		if ( i > 0 && i < numOfDominos - 6)
+		if ( i > 0 && i < numOfDominos - (extraDominos + 1))
 		{
 			Cvec3 screen = Cvec3(0,0,1);
 			float angle = angleBetween(g_splineArray[i+1] - g_splineArray[i-1], screen);
@@ -518,8 +518,8 @@ static void initDominos()
 		g_rigidBodies[i].rtf.setRotation(rotation);
 	}
 
-	// Hide the last 5 Dominos
-	for (int i = numOfDominos - 1; i >= numOfDominos - 5; i--)
+	// Hide the extra Dominos
+	for (int i = numOfDominos - 1; i >= numOfDominos - extraDominos; i--)
 	{
 		g_rigidBodies[i].isChildVisible = false;
 	}
@@ -794,6 +794,41 @@ static void animate(int value)
 	}
 }
 /*-----------------------------------------------*/
+static void drawInterpolants()
+{
+	/* PURPOSE:		Positions and rotates Interpolated dominos in spline
+	*/
+
+	// When the user hits the i (for interpolate) key. 
+			//Your program should interpolate evenly five dominoes
+			//between each control point using these Catmull Rom splines.
+			//The direction the interpolated dominoes are facing should
+			//be based on the first directive of the splines at that point.
+	float totalTime = 1.0;
+	float timeSegment = totalTime / (g_numOfInterpolantDominos + 1);
+	float currentTime = timeSegment;
+	int dominoIndex = g_numOfControlPoints;
+
+	// Do once for each of control points interpolated between
+	for (int i = 1; i < g_numOfControlPoints - 3; i++)
+	{
+		while (currentTime < totalTime)
+		{
+			// Find and set position
+			Cvec3 position = catmullRomSpline::interpolate(g_splineArray, i, currentTime);
+			g_rigidBodies[dominoIndex].rtf.setTranslation(position);
+			g_rigidBodies[dominoIndex].isChildVisible = true;
+
+			// Set Rotation
+			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(90));
+
+			dominoIndex++;
+			currentTime += timeSegment;
+		}
+		currentTime = timeSegment;
+	}
+}
+/*-----------------------------------------------*/
 static void mouse(const int button, const int state, const int x, const int y) {
   g_mouseClickX = x;
   g_mouseClickY = g_windowHeight - y - 1;  // conversion from GLUT window-coordinate-system to OpenGL window-coordinate-system
@@ -824,9 +859,9 @@ static void keyboard(const unsigned char key, const int x, const int y)
 		{
 			case 27:
 				exit(0);                                  // ESC
-			case 'i':
+			case 'h':
 				cout << " ============== H E L P ==============\n\n"
-				<< "i\t\thelp menu\n"
+				<< "h\t\thelp menu\n"
 				<< "s\t\tsave screenshot\n"
 				<< "f\t\tToggle flat shading on/off.\n"
 				<< "o\t\tCycle object to edit\n"
@@ -881,11 +916,7 @@ static void keyboard(const unsigned char key, const int x, const int y)
 	
 		if (key == 'i')
 		{
-			// When the user hits the i (for interpolate) key. 
-			//Your program should interpolate evenly five dominoes
-			//between each control point using these Catmull Rom splines.
-			//The direction the interpolated dominoes are facing should
-			//be based on the first directive of the splines at that point.
+			drawInterpolants();
 		}
 		else if (key == 'a')
 		{
@@ -971,7 +1002,7 @@ static void initGeometry()
 
 static void initSplines()
 {
-	g_splineArray = splineReader::parseSplineFile("spline.txt", &g_numOfObjects);
+	g_splineArray = splineReader::parseSplineFile("spline.txt", &g_numOfControlPoints);
 }
 
 int main(int argc, char * argv[]) {

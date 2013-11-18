@@ -60,7 +60,7 @@ Cvec3* splineReader::parseSplineFile(string filename, int *numOfObjects)
 		{
 			//cout << spline << endl; // Check spline is created correct
 			splineArray[index] = parseCvec(spline);
-			printCvec(splineArray[index]); // Check Cvec is stored correct
+			//printCvec(splineArray[index]); // Check Cvec is stored correct
 			index++;
 			count++;
 		}
@@ -100,7 +100,7 @@ Cvec3 splineReader::parseCvec(string spline)
 	else
 	   cout << "Bad line: Using <0, 0, 0>" << endl;
 
-	return Cvec3(x, 0, z);
+	return Cvec3(x, 2, z);
 }
 /*-----------------------------------------------*/
 void splineReader::printCvec(Cvec3 splinePoint)

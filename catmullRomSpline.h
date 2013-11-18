@@ -17,12 +17,12 @@ class catmullRomSpline
 	// This class calculates the interpolation of a catmull rom spline
 
 public:
-	static Cvec3 interpolate(Cvec3 splineArray, int index, float time);
+	static Cvec3 interpolate(Cvec3 *splineArray, int index, float time);
 
 private:
 };
 /*-----------------------------------------------*/
-static Cvec3 interpolate(Cvec3 splineArray, int index, float time)
+Cvec3 catmullRomSpline::interpolate(Cvec3 *splineArray, int index, float time)
 {
 	/* PURPOSE:		Calculates the position of an interpolated point between two catmull rom control points 
 		RECEIVES:   splineArray - Array of Cvec3's that make up the spline
@@ -50,15 +50,3 @@ static Cvec3 interpolate(Cvec3 splineArray, int index, float time)
 	return final;
 }
 /*-----------------------------------------------*/
-
-// TODO Remove at end
-/*-----------------------------------------------*/
-
-	/* PURPOSE:		What does this function do? (must be present) 
-		RECEIVES:   List every argument name and explain each argument. 
-						(omit if the function has no arguments) 
-		RETURNS:    Explain the value returned by the function. 
-						(omit if the function returns no value) 
-		REMARKS:    Explain any special preconditions or postconditions. 
-						See example below. (omit if function is unremarkable) 
-	*/

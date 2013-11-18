@@ -1,7 +1,4 @@
-When the user hits the i (for interpolate) key. Your program should interpolate evenly five dominoes between each control point (you might end up drawing dominoes partially over dominoes depending on the spline.txt files) using these Catmull Rom splines. 
-
-
-The direction the interpolated dominoes are facing should be based on the first directive of the splines at that point.
+The direction the interpolated dominoes are facing should be based on the first derivative of the splines at that point.
 
 
 
