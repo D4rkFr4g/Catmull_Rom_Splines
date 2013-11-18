@@ -384,19 +384,32 @@ static Matrix4 lookAt(Cvec3f eyePosition, Cvec3f lookAtPosition, Cvec3f upVector
 	return Matrix4(m, true);
 }
 /*-----------------------------------------------*/
-static float lookAt(Cvec3 eyePosition, Cvec3 upPosition)
+static float angleBetween(Cvec3 vectorOne, Cvec3 vectorTwo)
 {
-	float temp = dot(eyePosition, upPosition);
-	float eyeNorm = norm(eyePosition);
-	float atNorm = norm(upPosition);
-	temp = (temp / (eyeNorm * atNorm));
+	float temp = dot(vectorOne, vectorTwo);
+	float vOneNorm = norm(vectorOne);
+	float vTwoNorm = norm(vectorTwo);
+	temp = (temp / (vOneNorm * vTwoNorm));
 	temp = acos(temp) * 180;
 	temp /= M_PI;
 
 	//cout << "angle = " << temp << "\n";
 	//Matrix4::print(Matrix4::makeXRotation(temp));
 
-	return -(90 - temp);
+	return temp;
+}
+static float lookAt(Cvec3 eyePosition, Cvec3 upPosition)
+{
+	/*
+	float temp = dot(eyePosition, upPosition);
+	float eyeNorm = norm(eyePosition);
+	float atNorm = norm(upPosition);
+	temp = (temp / (eyeNorm * atNorm));
+	temp = acos(temp) * 180;
+	temp /= M_PI;
+	*/
+
+	return -(90 - angleBetween(eyePosition, upPosition));
 }
 static void lookAtOrigin()
 {
@@ -489,9 +502,12 @@ static void initDominos()
 		g_rigidBodies[i].rtf.setTranslation(position);
 
 		// Set Rotations
-		if ( i < numOfDominos - 5)
+		if ( i > 0 && i < numOfDominos - 6)
 		{
-			rotation = Quat(); // TODO Calculate and set rotation
+			Cvec3 screen = Cvec3(0,0,1);
+			float angle = angleBetween(g_splineArray[i+1] - g_splineArray[i-1], screen);
+
+			rotation = Quat().makeYRotation(angle);
 		}
 		else
 			rotation = g_rigidBodies[0].rtf.getRotation();
