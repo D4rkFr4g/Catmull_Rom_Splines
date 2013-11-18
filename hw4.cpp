@@ -401,6 +401,7 @@ static float angleBetween(Cvec3 vectorOne, Cvec3 vectorTwo)
 
 	return temp;
 }
+/*-----------------------------------------------*/
 static float lookAt(Cvec3 eyePosition, Cvec3 upPosition)
 {
 	/*
@@ -414,6 +415,7 @@ static float lookAt(Cvec3 eyePosition, Cvec3 upPosition)
 
 	return -(90 - angleBetween(eyePosition, upPosition));
 }
+/*-----------------------------------------------*/
 static void lookAtOrigin()
 {
 	// Set angle to look at the origin
@@ -683,7 +685,7 @@ static void motion(const int x, const int y) {
 
 	RigTForm m;
 	if (g_mouseLClickButton && !g_mouseRClickButton) { // left button down?
-		m = g_rigidBodies[0].rtf * RigTForm(Quat().makeXRotation(dy)) * RigTForm(Quat().makeYRotation(-dx)) * inv(g_rigidBodies[0].rtf);
+		m = g_eyeRbt * RigTForm(Quat().makeXRotation(dy)) * RigTForm(Quat().makeYRotation(-dx)) * inv(g_eyeRbt);
 	}
   else if (g_mouseRClickButton && !g_mouseLClickButton) 
   { // right button down?
@@ -692,12 +694,13 @@ static void motion(const int x, const int y) {
   }
   else if (g_mouseMClickButton || (g_mouseLClickButton && g_mouseRClickButton)) {  // middle or (left and right) button down?
     //m = g_eyeRbt * Matrix4::makeTranslation(Cvec3(0, 0, -dy) * 0.01) * inv(g_eyeRbt); //Update based on Eye Frame
-	  m = RigTForm(Cvec3(0, 0,dy) * 0.01); //Update based on Eye Frame
+	  m = g_eyeRbt * RigTForm(Cvec3(0, 0,dy) * 0.01) * inv(g_eyeRbt); //Update based on Eye Frame
   }
 
   if (g_mouseClickDown) {
 //	  g_objectRbt[0] *= m; // Simply right-multiply is WRONG
-	  g_rigidBodies[0].rtf = m * g_rigidBodies[0].rtf; //Update Robot Container
+	  //g_rigidBodies[0].rtf = m * g_rigidBodies[0].rtf; //Update Robot Container
+	  g_eyeRbt = m * g_eyeRbt; //Update Camera
 	  glutPostRedisplay(); // we always redraw if we changed the scene
   }
 
@@ -808,10 +811,12 @@ static void drawInterpolants()
 	float timeSegment = totalTime / (g_numOfInterpolantDominos + 1);
 	float currentTime = timeSegment;
 	int dominoIndex = g_numOfControlPoints;
+	int startIndex = dominoIndex;
 
 	// Do once for each of control points interpolated between
 	for (int i = 1; i < g_numOfControlPoints - 3; i++)
 	{
+		cout << "i = " << i << endl;
 		while (currentTime < totalTime)
 		{
 			// Find and set position
@@ -823,7 +828,11 @@ static void drawInterpolants()
 			Cvec3 screen = Cvec3(0,0,1);
 			Cvec3 derivedVector = catmullRomSpline::firstDerivative();
 			float angle = angleBetween(derivedVector, screen);
+
 			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(angle));
+
+			cout << "angle = " << angle << endl;
+			//cout << "derivedVector= <" << derivedVector[0]  << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
 
 			dominoIndex++;
 			currentTime += timeSegment;
