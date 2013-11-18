@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="catmullRomSpline.cpp" />
     <ClCompile Include="glsupport.cpp" />
     <ClCompile Include="matrixCube.cpp" />
     <ClCompile Include="ppm.cpp" />

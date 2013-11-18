@@ -819,8 +819,11 @@ static void drawInterpolants()
 			g_rigidBodies[dominoIndex].rtf.setTranslation(position);
 			g_rigidBodies[dominoIndex].isChildVisible = true;
 
-			// Set Rotation
-			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(90));
+			// Set Rotation based on first derivative
+			Cvec3 screen = Cvec3(0,0,1);
+			Cvec3 derivedVector = catmullRomSpline::firstDerivative();
+			float angle = angleBetween(derivedVector, screen);
+			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(angle));
 
 			dominoIndex++;
 			currentTime += timeSegment;
