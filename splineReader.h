@@ -1,7 +1,7 @@
 /****************************************************** 
 * Project:         CS 116A Homework #4
 * File:            splineReader.h
-* Purpose:         Implement a curve drawwing algorithm
+* Purpose:         Implement a curve drawing algorithm
 * Start date:      11/10/13 
 * Programmer:      Zane Melcho 
 * 

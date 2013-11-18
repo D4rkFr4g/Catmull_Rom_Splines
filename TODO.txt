@@ -1,6 +1,3 @@
-Each domino, except the first and last, again which I leave up to you, should be oriented in the direction of the vector from the position of the domino one before to the domino one after it. 
-
-
 When the user hits the i (for interpolate) key. Your program should interpolate evenly five dominoes between each control point (you might end up drawing dominoes partially over dominoes depending on the spline.txt files) using these Catmull Rom splines. 
 
 

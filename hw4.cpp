@@ -499,6 +499,9 @@ static void initDominos()
 		else
 			position = g_splineArray[0];
 
+		//Move up to sit on the ground
+		position += Cvec3(0,2,0); 
+
 		g_rigidBodies[i].rtf.setTranslation(position);
 
 		// Set Rotations
