@@ -506,7 +506,7 @@ static void initDominos()
 
 		// Set color of control dominos
 		if ( i < numOfDominos - extraDominos )
-			g_rigidBodies[i].children[0]->color = Cvec3(0.005, 0.005, 0.005);
+			g_rigidBodies[i].children[0]->color = Cvec3(0.05, 0.05, 0.05);
 
 		g_rigidBodies[i].rtf.setTranslation(position);
 
@@ -514,8 +514,9 @@ static void initDominos()
 		if ( i > 0 && i < numOfDominos - (extraDominos + 1))
 		{
 			Cvec3 screen = Cvec3(0,0,1);
-			float angle = angleBetween(g_splineArray[i+1] - g_splineArray[i-1], screen);
-			
+			Cvec3 vector = g_splineArray[i+1] - g_splineArray[i-1];
+			float angle = angleBetween(vector, screen);
+
 			// Rotates the short way
 			if (vector[0] < 0 && vector[2] < 0)
 				angle *= -1;
@@ -824,6 +825,9 @@ static void drawInterpolants()
 	// Do once for each of control points interpolated between
 	for (int i = 1; i < g_numOfControlPoints - 3; i++)
 	{
+		// Find vector for Control point before and after
+		Cvec3 vector = g_splineArray[i+1] - g_splineArray[i-1];
+
 		cout << "i = " << i << endl;
 		while (currentTime < totalTime)
 		{
@@ -837,9 +841,42 @@ static void drawInterpolants()
 			Cvec3 derivedVector = catmullRomSpline::firstDerivative();
 			float angle = angleBetween(derivedVector, screen);
 
+			cout << "Vector        = <" << vector[0] << ", " << vector[1] << ", " << vector[2] << ">" << endl;
+			cout << "DerivedVector = <" << derivedVector[0] << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
+			cout << "beforeAngle = " << angle << endl;
+
+			/*
+			// Rotate the short way
+			if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
+				&& ((derivedVector[2] < 0 && vector[2] >= 0) || (derivedVector[2] >= 0 && vector[2] < 0)))
+			{	
+				angle *= -1;
+				angle += 180;
+				cout << "condition 1" << endl;
+			}
+			else if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
+				|| ((derivedVector[2] < 0 && vector[2] >= 0) || (derivedVector[2] >= 0 && vector[2] < 0)))
+			{
+				//angle *= -1;
+				angle -= 90;
+				
+				cout << "condition 2" << endl;
+			}
+			*/
+/*
+			// Rotate the short way
+			if ( ( derivedVector[0] < 0 && vector[0] >= 0 ) || ( derivedVector[0] >= 0 && vector[0] < 0))
+				vector[0] *= -1;
+			else if ( ( derivedVector[1] < 0 && vector[1] >= 0 ) || ( derivedVector[1] >= 0 && vector[1] < 0))
+				vector[1] *= -1;
+			else if ( ( derivedVector[2] < 0 && vector[2] >= 0 ) || ( derivedVector[2] >= 0 && vector[2] < 0))
+				vector[2] *= -1;
+*/
+			cout << "afterAngle = " << angle << endl;
+
 			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(angle));
 
-			cout << "angle = " << angle << endl;
+			
 			//cout << "derivedVector= <" << derivedVector[0]  << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
 
 			dominoIndex++;
