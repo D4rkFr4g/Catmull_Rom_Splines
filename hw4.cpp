@@ -811,11 +811,6 @@ static void drawInterpolants()
 	/* PURPOSE:		Positions and rotates Interpolated dominos in spline
 	*/
 
-	// When the user hits the i (for interpolate) key. 
-			//Your program should interpolate evenly five dominoes
-			//between each control point using these Catmull Rom splines.
-			//The direction the interpolated dominoes are facing should
-			//be based on the first directive of the splines at that point.
 	float totalTime = 1.0;
 	float timeSegment = totalTime / (g_numOfInterpolantDominos + 1);
 	float currentTime = timeSegment;
@@ -853,7 +848,6 @@ static void drawInterpolants()
 			//cout << "afterAngle = " << angle << endl;
 
 			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(angle));
-
 			
 			//cout << "derivedVector= <" << derivedVector[0]  << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
 
@@ -862,51 +856,6 @@ static void drawInterpolants()
 		}
 		currentTime = timeSegment;
 	}
-}
-static void testCode()
-{
-	/*			
-			// Rotate the short way
-			// If both different
-			if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
-				&& ((derivedVector[2] < 0 && vector[2] >= 0) || (derivedVector[2] >= 0 && vector[2] < 0)))
-			{	
-				angle *= -1;
-				angle += 180;
-				cout << "condition 1" << endl;
-			}
-			// If <Different, Same>
-			else if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
-				&& ((derivedVector[2] < 0 && vector[2] < 0) || (derivedVector[2] >= 0 && vector[2] >= 0)))
-			{
-				angle *= -1;
-				//angle -= 90;
-				
-				cout << "condition 2" << endl;
-			}
-			// If <Same, (+,-)>
-			else if (((derivedVector[0] < 0 && vector[0] < 0) || (derivedVector[0] >= 0 && vector[0] >= 0))
-				&& ((derivedVector[2] >= 0 && vector[2] < 0)))
-			{
-				angle += 90;
-				cout << "condition 3" << endl;
-			}
-			// If <Same, (-,+)>
-			else if (((derivedVector[0] < 0 && vector[0] < 0) || (derivedVector[0] >= 0 && vector[0] >= 0))
-				&& ((derivedVector[2] < 0 && vector[2] >= 0)))
-			{
-				angle -= 90;
-				cout << "condition 4" << endl;
-			}
-
-			// Rotate the short way
-			if ( ( derivedVector[0] < 0 && vector[0] >= 0 ) || ( derivedVector[0] >= 0 && vector[0] < 0))
-				vector[0] *= -1;
-			else if ( ( derivedVector[1] < 0 && vector[1] >= 0 ) || ( derivedVector[1] >= 0 && vector[1] < 0))
-				vector[1] *= -1;
-			else if ( ( derivedVector[2] < 0 && vector[2] >= 0 ) || ( derivedVector[2] >= 0 && vector[2] < 0))
-				vector[2] *= -1;
-*/
 }
 /*-----------------------------------------------*/
 static void mouse(const int button, const int state, const int x, const int y) {
