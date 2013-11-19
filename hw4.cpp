@@ -498,11 +498,15 @@ static void initDominos()
 		Cvec3 position;
 		Quat rotation;
 
-		// Set position according to the Spline file except the last 5 which start at the first point
+		// Set position according to the Spline file except the extra dominos which start at the first point
 		if ( i < numOfDominos - extraDominos)
 			position = g_splineArray[i];
 		else
 			position = g_splineArray[0];
+
+		// Set color of control dominos
+		if ( i < numOfDominos - extraDominos )
+			g_rigidBodies[i].children[0]->color = Cvec3(0.005, 0.005, 0.005);
 
 		g_rigidBodies[i].rtf.setTranslation(position);
 
@@ -511,6 +515,10 @@ static void initDominos()
 		{
 			Cvec3 screen = Cvec3(0,0,1);
 			float angle = angleBetween(g_splineArray[i+1] - g_splineArray[i-1], screen);
+			
+			// Rotates the short way
+			if (vector[0] < 0 && vector[2] < 0)
+				angle *= -1;
 
 			rotation = Quat().makeYRotation(angle);
 		}
