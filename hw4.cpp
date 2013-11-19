@@ -826,7 +826,24 @@ static void drawInterpolants()
 	for (int i = 1; i < g_numOfControlPoints - 3; i++)
 	{
 		// Find vector for Control point before and after
-		Cvec3 vector = g_splineArray[i+1] - g_splineArray[i-1];
+		Cvec3 pointBefore = g_splineArray[i-1];
+		Cvec3 point = g_splineArray[i];
+		Cvec3 pointAfter = g_splineArray[i+1];
+		Cvec3 pointPlusTwo = g_splineArray[i+2];
+		Cvec3 d = ((pointAfter - pointBefore) * (1.0/6)) + point;
+		Cvec3 e =  ((pointPlusTwo - point) * (-1.0/6)) + pointAfter;
+
+		float xDiff = d[0] - point[0];
+		float yDiff = d[1] - point[1];
+		float zDiff = d[2] - point[2];
+
+		float x[] = {point[0], d[0], e[0], pointAfter[0]};
+		float y[] = {point[1], d[1], e[1], pointAfter[1]};
+		float z[] = {point[2], d[2], e[2], pointAfter[2]};
+
+		int xIndex = 1;
+		int yIndex = 1;
+		int zIndex = 1;
 
 		cout << "i = " << i << endl;
 		while (currentTime < totalTime)
@@ -839,39 +856,57 @@ static void drawInterpolants()
 			// Set Rotation based on first derivative
 			Cvec3 screen = Cvec3(0,0,1);
 			Cvec3 derivedVector = catmullRomSpline::firstDerivative();
-			float angle = angleBetween(derivedVector, screen);
+			
+			//cout << "Vector        = <" << vector[0] << ", " << vector[1] << ", " << vector[2] << ">" << endl;
+			cout << "DerivedVector Before = <" << derivedVector[0] << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
+			//cout << "beforeAngle = " << angle << endl;
 
-			cout << "Vector        = <" << vector[0] << ", " << vector[1] << ", " << vector[2] << ">" << endl;
-			cout << "DerivedVector = <" << derivedVector[0] << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
-			cout << "beforeAngle = " << angle << endl;
-
-			/*
-			// Rotate the short way
-			if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
-				&& ((derivedVector[2] < 0 && vector[2] >= 0) || (derivedVector[2] >= 0 && vector[2] < 0)))
+			// Adjust derivedVector
+			if ((xDiff < 0) && (derivedVector[0] >= x[xIndex])) // second point is after first point
 			{	
-				angle *= -1;
-				angle += 180;
-				cout << "condition 1" << endl;
+				xDiff = x[xIndex + 1] - x[xIndex];
+				xIndex++;
 			}
-			else if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
-				|| ((derivedVector[2] < 0 && vector[2] >= 0) || (derivedVector[2] >= 0 && vector[2] < 0)))
+			else if ((xDiff >= 0) && (derivedVector[0] < x[xIndex])) // second point is before first point
 			{
-				//angle *= -1;
-				angle -= 90;
-				
-				cout << "condition 2" << endl;
+				xDiff = x[xIndex + 1] - x[xIndex];
+				xIndex++;	
 			}
-			*/
-/*
-			// Rotate the short way
-			if ( ( derivedVector[0] < 0 && vector[0] >= 0 ) || ( derivedVector[0] >= 0 && vector[0] < 0))
-				vector[0] *= -1;
-			else if ( ( derivedVector[1] < 0 && vector[1] >= 0 ) || ( derivedVector[1] >= 0 && vector[1] < 0))
-				vector[1] *= -1;
-			else if ( ( derivedVector[2] < 0 && vector[2] >= 0 ) || ( derivedVector[2] >= 0 && vector[2] < 0))
-				vector[2] *= -1;
-*/
+
+			if ((yDiff < 0) && (derivedVector[1] >= y[yIndex])) // second point is after first point
+			{	
+				yDiff = y[yIndex + 1] - y[yIndex];
+				yIndex++;
+			}
+			else if ((yDiff >= 0) && (derivedVector[2] < y[yIndex])) // second point is before first point
+			{
+				yDiff = y[yIndex + 1] - y[yIndex];
+				yIndex++;	
+			}
+
+			if ((zDiff < 0) && (derivedVector[2] >= z[zIndex])) // second point is after first point
+			{	
+				zDiff = z[zIndex + 1] - z[zIndex];
+				zIndex++;
+			}
+			else if ((zDiff >= 0) && (derivedVector[2] < z[zIndex])) // second point is before first point
+			{
+				zDiff = z[zIndex + 1] - z[zIndex];
+				zIndex++;	
+			}
+
+			if ((xDiff < 0 && derivedVector[0] >= 0) || (xDiff >= 0 && derivedVector[0] < 0))
+					derivedVector[0] *= -1;
+			if ((yDiff < 0 && derivedVector[1] >= 0) || (yDiff >= 0 && derivedVector[1] < 0))
+					derivedVector[1] *= -1;
+			if ((zDiff < 0 && derivedVector[2] >= 0) || (zDiff >= 0 && derivedVector[2] < 0))
+					derivedVector[2] *= -1;
+
+			cout << "zIndex = " << zIndex << endl;
+			cout << "zDiff = " << zDiff  << endl;
+			cout << "DerivedVector After = <" << derivedVector[0] << ", " << derivedVector[1] << ", " << derivedVector[2] << ">" << endl;
+
+			float angle = angleBetween(derivedVector, screen);
 			cout << "afterAngle = " << angle << endl;
 
 			g_rigidBodies[dominoIndex].rtf.setRotation(Quat().makeYRotation(angle));
@@ -884,6 +919,51 @@ static void drawInterpolants()
 		}
 		currentTime = timeSegment;
 	}
+}
+static void testCode()
+{
+	/*			
+			// Rotate the short way
+			// If both different
+			if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
+				&& ((derivedVector[2] < 0 && vector[2] >= 0) || (derivedVector[2] >= 0 && vector[2] < 0)))
+			{	
+				angle *= -1;
+				angle += 180;
+				cout << "condition 1" << endl;
+			}
+			// If <Different, Same>
+			else if (((derivedVector[0] < 0 && vector[0] >= 0) || (derivedVector[0] >= 0 && vector[0] < 0))
+				&& ((derivedVector[2] < 0 && vector[2] < 0) || (derivedVector[2] >= 0 && vector[2] >= 0)))
+			{
+				angle *= -1;
+				//angle -= 90;
+				
+				cout << "condition 2" << endl;
+			}
+			// If <Same, (+,-)>
+			else if (((derivedVector[0] < 0 && vector[0] < 0) || (derivedVector[0] >= 0 && vector[0] >= 0))
+				&& ((derivedVector[2] >= 0 && vector[2] < 0)))
+			{
+				angle += 90;
+				cout << "condition 3" << endl;
+			}
+			// If <Same, (-,+)>
+			else if (((derivedVector[0] < 0 && vector[0] < 0) || (derivedVector[0] >= 0 && vector[0] >= 0))
+				&& ((derivedVector[2] < 0 && vector[2] >= 0)))
+			{
+				angle -= 90;
+				cout << "condition 4" << endl;
+			}
+
+			// Rotate the short way
+			if ( ( derivedVector[0] < 0 && vector[0] >= 0 ) || ( derivedVector[0] >= 0 && vector[0] < 0))
+				vector[0] *= -1;
+			else if ( ( derivedVector[1] < 0 && vector[1] >= 0 ) || ( derivedVector[1] >= 0 && vector[1] < 0))
+				vector[1] *= -1;
+			else if ( ( derivedVector[2] < 0 && vector[2] >= 0 ) || ( derivedVector[2] >= 0 && vector[2] < 0))
+				vector[2] *= -1;
+*/
 }
 /*-----------------------------------------------*/
 static void mouse(const int button, const int state, const int x, const int y) {

@@ -1,7 +1,3 @@
-The direction the interpolated dominoes are facing should be based on the first derivative of the splines at that point.
-
-
-
 2 bonus points: if hitting the a key draws the interpolants, then starting with the first domino, topples the dominoes over as in a domino effect demonstration.
 
 
